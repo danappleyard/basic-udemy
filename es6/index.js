@@ -579,8 +579,8 @@ const toyota = new Toyota({color: "red", title: "Daily Driver"});
 
 //es6
 class Car {
-    constructor({title}) {
-        this.title = title;
+    constructor(options) {
+        this.title = options.title;
     }
 
     drive() {
@@ -588,9 +588,168 @@ class Car {
     }
 }
 
+class Toyota extends Car {
+    constructor(options) {
+        super(options);
+        this.color = options.color;
+    }
+    honk() {
+        return "beep";
+    }
+}
+
+const toyota = new Toyota({color: "red", title: "Daily Driver"});
+toyota.honk();
+
 const car = new Car({title: "Toyota"});
 car.drive();
 
+
+//section 16 (generators)
+
+function* numbers() {
+    yield;
+}
+
+const gen = numbers();
+gen.next(); //returns a {done:false} object
+gen.next(); //returns a {done:true} object
+
+function* shopping() {
+    //stuff on the sidewalk
+
+    //walking down the sidewalk
+
+    //go into the store with cash
+    const stuffFromStore = yield 'cash';
+
+    return stuffFromStore;
+}
+
+//stuff in the store
+const gen = shopping(); //this does not call the method!!!
+
+//leaving our house
+gen.next();  //this should return object of {"value": "cash", "done": false}
+
+const engineeringTeam = {
+    size: 3,
+    department: "Engineering",
+    lead: "Jill",
+    manager: "Alex",
+    engineer: "Dave"
+  };
+  
+  function* TeamIterator(team){
+      yield team.lead;
+    yield team.manager;
+    yield team.engineer;
+  }
+  
+  const names = [];
+  for(let name of TeamIterator(engineeringTeam)) {
+       names.push(name); 
+  }
+  names;
+
+  //generator delegation
+  const testingTeam = {
+    lead: "Amanda",
+    tester: "Bill"
+  };
+  
+  const engineeringTeam = {
+    testingTeam,
+    size: 3,
+    department: "Engineering",
+    lead: "Jill",
+    manager: "Alex",
+    engineer: "Dave"
+  };
+  
+  function* TestingTeamIterator(team) {
+    yield team.lead;
+    yield team.tester;
+  }
+  
+  function* TeamIterator(team) {
+      yield team.lead;
+    yield team.manager;
+    yield team.engineer;
+    const testingTeamGenerator = TestingTeamIterator(team.testingTeam);
+    yield* testingTeamGenerator;
+  }
+  
+  const names = [];
+  for(let name of TeamIterator(engineeringTeam)) {
+       names.push(name); 
+  }
+  names;	//Jill, Alex, Dave, Amanda, and Bill
+  
+
+  
+//clean it up!
+
+  //symbol iterator lets an object act like it implements IEnumerable (c# concepts)
+
+const testingTeam = {
+  lead: "Amanda",
+  tester: "Bill",
+  [Symbol.iterator]: function* () {
+  	yield this.lead;
+    yield this.tester;
+  }
+};
+
+const engineeringTeam = {
+  testingTeam,
+  size: 3,
+  department: "Engineering",
+  lead: "Jill",
+  manager: "Alex",
+  engineer: "Dave",
+  [Symbol.iterator]: function* () {
+    yield this.lead;
+    yield this.manager;
+    yield this.engineer;
+    yield* this.testingTeam;
+  }
+};
+
+const names = [];
+for(let name of engineeringTeam) {
+ 	names.push(name); 
+}
+names;	//Jill, Alex, Dave, Amanda, and Bill
+
+//generators and recursion
+class Comment {
+	constructor(content, children) {
+  	this.content = content;
+    this.children = children;
+  }
+  
+  *[Symbol.iterator]() {
+  	yield this.content;
+    for(let child of this.children) {
+    	yield* child;
+    }
+  }
+}
+
+const children = [
+	new Comment("good comment", []),
+  new Comment("bad comment", []),
+  new Comment("meh", [])
+];
+
+const tree = new Comment("Great post!", children);
+//tree;
+const values = [];
+for(let c of tree){
+ 	 values.push(c);
+}
+values;
 
 
 
