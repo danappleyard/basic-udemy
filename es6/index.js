@@ -785,11 +785,8 @@ fetch(url)
 console.log("fetch called");
 
 //shortcomings of fetch
-const url = "https://jsonplaceholder.typicode.com/posts123456/";
-console.log("about to fetch");
-fetch(url)
-    .then(response => console.log(response))
-    .catch(error => console.log('BAD', error));
+const 
+
 
 
 
